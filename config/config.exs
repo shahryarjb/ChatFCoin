@@ -47,6 +47,11 @@ config :logger, :console,
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
 
+config :mishka_installer, :basic,
+  repo: ChatFCoin.Repo,
+  pubsub: ChatFCoin.PubSub,
+  html_router: ChatFCoinWeb.Router.Helpers
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"
