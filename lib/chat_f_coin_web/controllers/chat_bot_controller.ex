@@ -1,5 +1,10 @@
 defmodule ChatFCoinWeb.ChatBotController do
   use ChatFCoinWeb, :controller
+  alias ChatFCoin.Plugin.{
+    FacebookUserMessage.FacebookUserMessageBehaviour,
+    FacebookSubscribe.FacebookSubscribeBehaviour
+  }
+  alias ChatFCoin.ChatBotControllerProtocol
   @moduledoc """
     When you want to create a Facebook Chatbot, you should consider two connections are sent to you as the `Webhook` router
     for example, the first one is subscribing and is called when you want to introduce your webhook in the Facebook application
@@ -48,37 +53,18 @@ defmodule ChatFCoinWeb.ChatBotController do
 
     > In this simple project we can not consider the requests pressure or Facebook Limits, so I can not use any Queue Manager
   """
-
-  # TODO: create a protocol for this router with behaviors and struct for each step
-  # TODO: Create some activities function to log
   @spec webhook(Plug.Conn.t(), map) :: Plug.Conn.t()
-  def webhook(conn, %{ "hub.challenge" => challenge, "hub.mode" => mode, "hub.verify_token" => verify_token}) do
-    with {:verify_token, true} <- {:verify_token, ChatFCoin.get_config(:facebook_chat_accsess_token) == verify_token},
-         {:hub_mod, true} <- {:hub_mod, mode == "subscribe"} do
-
-      # TODO: Add an event to make the code modular
-      conn
-      |> send_resp(200, challenge)
-    else
-      {:verify_token, false} ->
-        # TODO: Add an event to make the code modular
-        conn
-        |> send_resp(403, "Unauthorized")
-      {:hub_mod, false} ->
-        # TODO: Add an event to make the code modular
-        conn
-        |> send_resp(403, "Unauthorized")
-    end
+  def webhook(conn, %{"hub.challenge" => challenge, "hub.mode" => mode, "hub.verify_token" => verify_token}) do
+    %FacebookSubscribeBehaviour{mode: mode, challenge: challenge, verify_token: verify_token, conn: conn}
+    |> ChatBotControllerProtocol.webhook()
   end
 
-  def webhook(conn, %{"object" => _object, "entry" => _entries}) do
-    # TODO: send a new message to user and ask them or say something
-    # TODO: Add an event to make the code modular
-    # TODO: check is there a problem in user's answer or not
-    # TODO: check the page parameter is page or not
-    # TODO: if user sends something for first time, save him/her in database
-    # TODO: check how to send a message after a time, not immediately
-    send_resp(conn, 200, "EVENT_RECEIVED")
-    # send_resp(conn, 404, "NOT_FOUND")
+  def webhook(conn, %{"object" => object, "entry" => entries}) do
+    get_message = List.first(entries)["messaging"] |> List.first
+    %FacebookUserMessageBehaviour{
+      message_id: List.first(entries)["id"], message: get_message["message"]["text"],
+      sender_id: get_message["sender"]["id"], object: object, conn: conn
+    }
+    |> ChatBotControllerProtocol.webhook()
   end
 end

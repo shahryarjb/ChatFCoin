@@ -14,16 +14,16 @@ defmodule ChatFCoinWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", ChatFCoinWeb do
-    pipe_through :browser
-
-    get "/", PageController, :index
-  end
+  # scope "/", ChatFCoinWeb do
+  #   pipe_through :browser
+  # end
 
   # Other scopes may use custom stacks.
-  # scope "/api", ChatFCoinWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", ChatFCoinWeb do
+    pipe_through :api
+    get "/webhook", ChatBotController, :webhook
+    post "/webhook", ChatBotController, :webhook
+  end
 
   # Enables LiveDashboard only for development
   #

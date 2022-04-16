@@ -5,16 +5,17 @@ defmodule ChatFCoin.Plugin.FacebookSubscribe do
       This module covers requireed `struct` and `behaviour, and it should be noted it is nested.
       This event is called by each Facebook callback validating.
     """
-    defstruct [:mod, :challenge, :verify_token, :conn]
+    defstruct [:mode, :challenge, :verify_token, :conn, error: :no_error]
 
-    @type mod() :: String.t()
+    @type mode() :: String.t()
     @type challenge() :: String.t()
     @type verify_token() :: String.t()
+    @type error() :: atom()
     @type ref() :: :on_facebook_subscribe # Name of this event
     @type reason() :: map() | String.t() # output of state for this event
     @type conn() :: Plug.Conn.t()
     @type registerd_info() :: MishkaInstaller.PluginState.t() # information about this plugin on state which was saved
-    @type state() :: %__MODULE__{mod: mod(), challenge: challenge(), verify_token: verify_token(), conn: conn()}
+    @type state() :: %__MODULE__{mode: mode(), challenge: challenge(), verify_token: verify_token(), conn: conn(), error: error}
     @type t :: state() # help developers to keep elixir style
     @type optional_callbacks :: {:ok, ref(), registerd_info()} | {:error, ref(), reason()}
 
@@ -46,7 +47,3 @@ defmodule ChatFCoin.Plugin.FacebookSubscribe do
       {:reply, state}
     end
 end
-
-# alias ChatFCoin.Plugin.FacebookSubscribe.FacebookSubscribeBehaviour
-# state = %FacebookSubscribeBehaviour{mod: mod, challenge: challenge, verify_token: verify_token, conn: conn}
-# MishkaInstaller.Hook.call(event: "on_facebook_subscribe", state: state)
