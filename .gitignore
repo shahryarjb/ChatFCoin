@@ -12,3 +12,6 @@ erl_crash.dump
 # General
 .DS_Store
 mix.lock
+
+elixirproject
+mykey
