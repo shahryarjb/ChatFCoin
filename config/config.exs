@@ -15,7 +15,11 @@ config :chat_f_coin, ChatFCoinWeb.Endpoint,
   url: [host: "localhost"],
   render_errors: [view: ChatFCoinWeb.ErrorView, accepts: ~w(html json), layout: false],
   pubsub_server: ChatFCoin.PubSub,
-  live_view: [signing_salt: "Q2h1bjVU"]
+  live_view: [signing_salt: "Q2h1bjVU"],
+  facebook_chat_accsess_token: System.get_env("FACEBOOK_CHAT_ACCSESS_TOKEN"),
+  facebook_chat_page_id: System.get_env("FACEBOOK_CHAT_PAGE_ID"),
+  facebook_chat_app_id: System.get_env("FACEBOOK_CHAT_APP_ID"),
+  facebook_chat_secret: System.get_env("FACEBOOK_CHAT_SECRET")
 
 # Configures the mailer
 #
