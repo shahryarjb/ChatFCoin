@@ -1,3 +1,22 @@
+  defmodule ChatFCoin.Helper.HttpSender do
+    @url "https://graph.facebook.com/v2.6/me/messages"
+    @request_name MyHttpClient
+
+    @spec send_token(String.t) :: {:ok, Finch.Response.t} | {:error, Exception.t}
+    def send_token(token) do
+      body = %{response: token, secret: ""}
+      |> URI.encode_query()
+
+      headers = [
+        {"Content-type", "application/x-www-form-urlencoded"},
+        {"Accept", "application/json"}
+      ]
+
+      Finch.build(:post, @url, headers, body)
+      |> Finch.request(@request_name)
+    end
+  end
+
   # @facebook_url "https://graph.facebook.com/v2.6/me/messages"
   # def send_message(psid, message) do
   #   url = "#{@facebook_url}?access_token=#{ChatFCoin.get_config(:facebook_chat_accsess_token)}"

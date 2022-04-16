@@ -1,16 +1,22 @@
 defmodule ChatFCoin.MixProject do
   use Mix.Project
+  @version "0.0.1"
 
   def project do
     [
       app: :chat_f_coin,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.12",
+      name: "ChatFCoin",
       elixirc_paths: elixirc_paths(Mix.env()),
       compilers: [:gettext] ++ Mix.compilers(),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
-      deps: deps()
+      deps: deps(),
+      description: description(),
+      package: package(),
+      homepage_url: "https://github.com/mishka-group",
+      source_url: "https://github.com/shahryarjb/ChatFCoin",
     ]
   end
 
@@ -49,7 +55,8 @@ defmodule ChatFCoin.MixProject do
       {:gettext, "~> 0.18"},
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
-      {:mishka_installer, "~> 0.0.2"}
+      {:mishka_installer, "~> 0.0.2"},
+      {:finch, "~> 0.11.0"}
     ]
   end
 
@@ -66,6 +73,19 @@ defmodule ChatFCoin.MixProject do
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.deploy": ["esbuild default --minify", "phx.digest"]
+    ]
+  end
+
+  defp description() do
+    "This is an exercise for building a chatbot with Facebook"
+  end
+
+  defp package() do
+    [
+      files: ~w(lib .formatter.exs mix.exs priv LICENSE README* assets config),
+      licenses: ["Apache License 2.0"],
+      maintainers: ["Shahryar Tavakkoli"],
+      links: %{"GitHub" => "https://github.com/shahryarjb/ChatFCoin"}
     ]
   end
 end

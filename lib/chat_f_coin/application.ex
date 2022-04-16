@@ -15,9 +15,10 @@ defmodule ChatFCoin.Application do
       # Start the PubSub system
       {Phoenix.PubSub, name: ChatFCoin.PubSub},
       # Start the Endpoint (http/https)
-      ChatFCoinWeb.Endpoint
+      ChatFCoinWeb.Endpoint,
       # Start a worker by calling: ChatFCoin.Worker.start_link(arg)
       # {ChatFCoin.Worker, arg}
+      {Finch, name: MyHttpClient}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
