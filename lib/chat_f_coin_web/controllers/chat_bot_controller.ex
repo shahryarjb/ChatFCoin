@@ -55,11 +55,14 @@ defmodule ChatFCoinWeb.ChatBotController do
   """
   @spec webhook(Plug.Conn.t(), map) :: Plug.Conn.t()
   def webhook(conn, %{"hub.challenge" => challenge, "hub.mode" => mode, "hub.verify_token" => verify_token}) do
+    # TODO: It can be changed with dynamic parameters in the future
     %FacebookSubscribeBehaviour{mode: mode, challenge: challenge, verify_token: verify_token, conn: conn}
     |> ChatBotControllerProtocol.webhook()
   end
 
   def webhook(conn, %{"object" => object, "entry" => entries}) do
+    # TODO: It can be changed with dynamic parameters in the future
+    # TODO: `get_message` value should be sanitized even Facebook is a safe external service, change it in the future
     get_message = List.first(entries)["messaging"] |> List.first
     %FacebookUserMessageBehaviour{
       message_id: List.first(entries)["id"], message: get_message["message"]["text"],
