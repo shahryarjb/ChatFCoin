@@ -18,7 +18,9 @@ defmodule ChatFCoin.Application do
       ChatFCoinWeb.Endpoint,
       # Start a worker by calling: ChatFCoin.Worker.start_link(arg)
       # {ChatFCoin.Worker, arg}
-      {Finch, name: MyHttpClient}
+      {Finch, name: MyHttpClient},
+      %{id: ChatFCoin.Plugin.FacebookSubscribe, start: {ChatFCoin.Plugin.FacebookSubscribe, :start_link, [[]]}},
+      %{id: ChatFCoin.Plugin.FacebookUserMessage, start: {ChatFCoin.Plugin.FacebookUserMessage, :start_link, [[]]}}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
