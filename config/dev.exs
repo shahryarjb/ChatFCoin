@@ -2,10 +2,10 @@ import Config
 
 # Configure your database
 config :chat_f_coin, ChatFCoin.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "chat_f_coin_dev",
+  username: System.get_env("DB_USERNAME") || "postgres",
+  password: System.get_env("DB_PASSWORD") || "postgres",
+  hostname: System.get_env("DB_HOSTNAME") || "localhost",
+  database: System.get_env("DB_NAME") || "chat_f_coin_dev",
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
