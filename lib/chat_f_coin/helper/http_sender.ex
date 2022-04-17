@@ -35,5 +35,6 @@ defmodule ChatFCoin.Helper.HttpSender do
 
   defp handle_user_info({:ok, %{body: body, headers: _headers, status: 200}}), do: Jason.decode!(body)
   # I should pass nil or error as atom, but the message can be sent with Dear client and make him/her smile With our respect
+  # It should be noted you can create some useful condition to make code safer like if you cannot access to API what should be done?
   defp handle_user_info(_), do: %{"first_name" => "Dear client", "last_name" => "", "profile_pic" => "", "id" => ""}
 end

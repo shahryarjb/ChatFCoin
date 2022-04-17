@@ -72,13 +72,10 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   end
 
   @impl true
-  def handle_continue({:user_evaluation}, %UserMsgDynamicGenserver{} = state) do
-    {:noreply, state}
-  end
-
-  @impl true
-  def handle_call({:push, _status, %UserMsgDynamicGenserver{} = element}, _from, %UserMsgDynamicGenserver{} = _state) do
-    {:reply, element, element}
+  def handle_call({:push, status, %UserMsgDynamicGenserver{} = element}, _from, %UserMsgDynamicGenserver{} = state) do
+    element =
+      Map.merge(element, %{user_answers: state.user_answers ++ element.user_answers})
+    {:reply, element, element, {:continue, {:sending_message, status}}}
   end
 
   @impl true
@@ -86,11 +83,37 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     {:reply, state, state}
   end
 
+  @impl true
+  def handle_continue({:user_evaluation}, %UserMsgDynamicGenserver{} = state) do
+    state =
+      state
+      |> Map.merge(%{
+        user_info: ChatFCoin.Helper.HttpSender.get_user_info(state.user_id),
+        last_try: NaiveDateTime.utc_now()
+      })
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_continue({:sending_message, :add}, %UserMsgDynamicGenserver{} = state) do
+    # TODO: send a message which includs help items and say hi with user first_name
+    # TODO: check is there a problem in user's answer or not
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_continue({:sending_message, :edit}, %UserMsgDynamicGenserver{} = state) do
+    # TODO: do user job based on user last answer number from user_answers list
+    # TODO: if user send a duplicate number from user_answers list, tell him/her → wants to continue with last question or new request!?
+    # TODO: if he/she selects new request maybe did before, so we need to change the list and delete all the previous number and put this just
+    # TODO: if he wants to continue with last question, so send him the message or next selector
+    # TODO: check is there a problem in user's answer or not
+    # TODO: if he/her repeat pervious answer show him/her 3 btn like, { you want last question?, clean and start again? or continue}
+    {:noreply, state}
+  end
+
   defp via(id, value) do
     {:via, Registry, {UserMSGRegistry, id, value}}
   end
 end
-
-
-# TODO: check is there a problem in user's answer or not
-# TODO: if he/her repeat pervious answer show him/her 3 btn like, { you want last question?, clean and start again? or continue}
