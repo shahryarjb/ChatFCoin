@@ -37,4 +37,19 @@ defmodule ChatFCoin.Helper.HttpSender do
   # I should pass nil or error as atom, but the message can be sent with Dear client and make him/her smile With our respect
   # It should be noted you can create some useful condition to make code safer like if you cannot access to API what should be done?
   defp handle_user_info(_), do: %{"first_name" => "Dear client", "last_name" => "", "profile_pic" => "", "id" => ""}
+
+  @spec run_message(integer, 1) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
+  def run_message(user_id, 1) do
+    message_body(:shor, user_id, "Please select one of the bottom way to load list of coin")
+    |> send_message()
+    |> handle_message_status(user_id, 1)
+  end
+
+  defp handle_message_status({:error, exception}, user_id, message_number) do
+    # TO load a plugin call hook to let developer create a custom plugin for this section of http sender
+    state = %ChatFCoin.Plugin.HttpSendMessage.HttpSendMessageBehaviour{message_number: message_number, sender_id: user_id, exception: exception}
+    MishkaInstaller.Hook.call(event: "on_http_send_message", state: state).exception
+  end
+
+  defp handle_message_status(result, _user_id, _message_number), do: result
 end

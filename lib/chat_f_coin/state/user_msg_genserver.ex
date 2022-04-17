@@ -7,7 +7,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
 
   @type user_id() :: String.t()
   @type user_info() :: map()
-  @type user_answers() :: [integer()] | integer()
+  @type user_answers() :: [integer() | nil] | integer()
   @type last_try() :: NaiveDateTime.t()
   @type parent_pid() :: pid() | nil
   @type social_network() :: String.t()
@@ -115,5 +115,13 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
 
   defp via(id, value) do
     {:via, Registry, {UserMSGRegistry, id, value}}
+  end
+
+  def user_message(message) do
+    %{
+      "List of Coin with name" => 1,
+      "List of Coin with id" => 2,
+      "Clean my activity" => 3
+    }[message]
   end
 end

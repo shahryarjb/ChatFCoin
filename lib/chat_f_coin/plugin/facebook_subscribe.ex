@@ -44,6 +44,10 @@ defmodule ChatFCoin.Plugin.FacebookSubscribe do
 
     @spec call(FacebookSubscribeBehaviour.t()) :: {:reply, FacebookSubscribeBehaviour.t()}
     def call(%FacebookSubscribeBehaviour{} = state) do
+      # TODO: This is a simple plugin, and you can call your code here
+      # TODO: it should be noted even you call a hook in your code it does not force you to create an empty plugin like it
+      # TODO: it just wants to show how you can create a plugin
+      # TODO: for more information please see my project: https://github.com/mishka-group/mishka_installer
       {:reply, state}
     end
 end

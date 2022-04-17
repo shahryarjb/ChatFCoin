@@ -1,21 +1,19 @@
-defmodule ChatFCoin.Plugin.FacebookUserMessage do
-  defmodule FacebookUserMessageBehaviour do
+defmodule ChatFCoin.Plugin.HttpSendMessage do
+  defmodule HttpSendMessageBehaviour do
     @moduledoc """
-      Define `FacebookUserMessageBehaviour` for `webhook` action.
+      Define `HttpSendMessageBehaviour` for `webhook` action.
       This module covers requireed `struct` and `behaviour, and it should be noted it is nested.
       This event is called by each user sending a message.
     """
-    defstruct [:message_id, :message, :sender_id, :object, :conn]
+    defstruct [:message_number, :sender_id, :exception]
 
-    @type message() :: String.t()
-    @type sender_id() :: integer()
-    @type message_id() :: integer()
-    @type object() :: String.t()
-    @type ref() :: :on_facebook_user_message # Name of this event
+    @type message_number() :: integer()
+    @type sender_id() :: String.t()
+    @type ref() :: :on_http_send_message # Name of this event
     @type reason() :: map() | String.t() # output of state for this event
     @type conn() :: Plug.Conn.t()
     @type registerd_info() :: MishkaInstaller.PluginState.t() # information about this plugin on state which was saved
-    @type state() :: %__MODULE__{message_id: message_id, message: message(), sender_id: sender_id(), object: object(), conn: conn()}
+    @type state() :: %__MODULE__{message_number: message_number(), sender_id: sender_id(), exception: Exception.t()}
     @type t :: state() # help developers to keep elixir style
     @type optional_callbacks :: {:ok, ref(), registerd_info()} | {:error, ref(), reason()}
 
@@ -31,19 +29,19 @@ defmodule ChatFCoin.Plugin.FacebookUserMessage do
 
   use MishkaInstaller.Hook,
   module: __MODULE__,
-  behaviour: FacebookUserMessageBehaviour,
-  event: :on_facebook_user_message,
+  behaviour: HttpSendMessageBehaviour,
+  event: :on_http_send_message,
   initial: []
 
-  @spec initial(list()) :: {:ok, FacebookUserMessageBehaviour.ref(), list()}
+  @spec initial(list()) :: {:ok, HttpSendMessageBehaviour.ref(), list()}
   def initial(args) do
-    event = %PluginState{name: "ChatFCoin.Plugin.FacebookUserMessage", event: Atom.to_string(@ref), priority: 1}
+    event = %PluginState{name: "ChatFCoin.Plugin.HttpSendMessage", event: Atom.to_string(@ref), priority: 1}
     Hook.register(event: event)
     {:ok, @ref, args}
   end
 
-  @spec call(FacebookUserMessageBehaviour.t()) :: {:reply, FacebookUserMessageBehaviour.t()}
-  def call(%FacebookUserMessageBehaviour{} = state) do
+  @spec call(HttpSendMessageBehaviour.t()) :: {:reply, HttpSendMessageBehaviour.t()}
+  def call(%HttpSendMessageBehaviour{} = state) do
     # TODO: This is a simple plugin, and you can call your code here
     # TODO: it should be noted even you call a hook in your code it does not force you to create an empty plugin like it
     # TODO: it just wants to show how you can create a plugin

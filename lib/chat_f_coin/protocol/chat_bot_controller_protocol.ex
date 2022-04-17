@@ -42,8 +42,7 @@ defimpl ChatFCoin.ChatBotControllerProtocol, for: ChatFCoin.Plugin.FacebookUserM
     state =
       %FacebookUserMessageBehaviour{message_id: message_id, message: message, sender_id: sender_id, object: "page", conn: conn}
 
-    # TODO: we need convert message to integer, so after that please replace with [1]
-    %UserMsgDynamicGenserver{user_id: sender_id, user_answers: [1], parent_pid: self(), social_network: "facebook"}
+    %UserMsgDynamicGenserver{user_id: sender_id, user_answers: [UserMsgDynamicGenserver.user_message(message)], parent_pid: self(), social_network: "facebook"}
     |> UserMsgDynamicGenserver.push_call()
     |> case do
       {:error, :push, _result} ->
