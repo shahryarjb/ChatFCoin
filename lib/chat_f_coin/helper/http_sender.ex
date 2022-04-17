@@ -2,20 +2,24 @@
     @url "https://graph.facebook.com/v2.6/me/messages"
     @request_name MyHttpClient
 
-    @spec send_token(String.t) :: {:ok, Finch.Response.t} | {:error, Exception.t}
-    def send_token(token) do
-      body = %{response: token, secret: ""}
-      |> URI.encode_query()
+  @spec send(any, binary | URI.t()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
+  def send(body, url \\ @url) do
+    body = body
+    |> URI.encode_query()
 
-      headers = [
-        {"Content-type", "application/x-www-form-urlencoded"},
-        {"Accept", "application/json"}
-      ]
+    headers = [
+      {"Content-type", "application/json"},
+      {"Accept", "application/json"}
+    ]
 
-      Finch.build(:post, @url, headers, body)
-      |> Finch.request(@request_name)
-    end
+    Finch.build(:post, url, headers, body)
+    |> Finch.request(@request_name)
   end
+
+  @spec message_body(:shor, integer(), String.t(), String.t()) :: %{access_token: String.t(),message: %{text: any}, recipient: %{id: any}}
+  def message_body(:shor, psid, message, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)),
+      do: %{access_token: access_token, recipient: %{id: psid}, message: %{text: message}}
+end
 
   # @facebook_url "https://graph.facebook.com/v2.6/me/messages"
   # def send_message(psid, message) do
