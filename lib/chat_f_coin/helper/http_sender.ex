@@ -17,9 +17,6 @@ defmodule ChatFCoin.Helper.HttpSender do
     |> Finch.request(@request_name)
   end
 
-  @spec message_body(:shor, integer(), String.t()) :: %{message: %{text: any}, recipient: %{id: any}}
-  def message_body(:shor, psid, message), do: %{recipient: %{id: psid}, message: %{text: message}}
-
   # Ref: https://developers.facebook.com/docs/graph-api/reference/v2.6/user
   # curl -X GET -G \
   # -d 'access_token=<ACCESS_TOKEN>' \
@@ -38,9 +35,11 @@ defmodule ChatFCoin.Helper.HttpSender do
   # It should be noted you can create some useful condition to make code safer like if you cannot access to API what should be done?
   defp handle_user_info(_), do: %{"first_name" => "Dear client", "last_name" => "", "profile_pic" => "", "id" => ""}
 
-  @spec run_message(integer, String.t(), integer()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
+  @spec run_message(String.t(), String.t(), 1) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
   def run_message(user_id, user_first_name, 1) do
-    message_body(:shor, user_id, "Hi #{user_first_name}, Please select one of the bottom way to load list of coin")
+    message = "Hi #{user_first_name}, Please select one of the bottom way to load list of coin"
+    buttons = [{"Get Coins with Name", "CoinWithName"}, {"Get Coins with Id", "CoinWithId"}, {"Cancel Operation", "Cancel"}]
+    message_body(:temporary_button, user_id, buttons, message)
     |> send_message()
     |> handle_message_status(user_id, 1)
   end
@@ -48,8 +47,17 @@ defmodule ChatFCoin.Helper.HttpSender do
   defp handle_message_status({:error, exception}, user_id, message_number) do
     # TO load a plugin call hook to let developer create a custom plugin for this section of http sender
     state = %ChatFCoin.Plugin.HttpSendMessage.HttpSendMessageBehaviour{message_number: message_number, sender_id: user_id, exception: exception}
-    MishkaInstaller.Hook.call(event: "on_http_send_message", state: state).exception
+    {:error, MishkaInstaller.Hook.call(event: "on_http_send_message", state: state).exception}
   end
 
   defp handle_message_status(result, _user_id, _message_number), do: result
+
+  @spec message_body(:shor, integer(), String.t()) :: %{message: %{text: any}, recipient: %{id: any}}
+  def message_body(:shor, user_id, message), do: %{recipient: %{id: user_id}, message: %{text: message}}
+
+  @spec message_body(:temporary_button, String.t(), [tuple()], String.t()) :: map()
+  def message_body(:temporary_button, user_id, buttons, message) do
+    buttons = Enum.map(buttons, fn {title, payload} -> %{content_type: "text", title: title, payload: "#{payload}"} end)
+    %{recipient: %{id: user_id}, messaging_type: "RESPONSE", message: %{text:  "#{message}", quick_replies: buttons}}
+  end
 end
