@@ -90,3 +90,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     {:via, Registry, {UserMSGRegistry, id, value}}
   end
 end
+
+
+# TODO: check is there a problem in user's answer or not
+# TODO: if he/her repeat pervious answer show him/her 3 btn like, { you want last question?, clean and start again? or continue}
