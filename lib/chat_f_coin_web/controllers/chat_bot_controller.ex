@@ -60,7 +60,8 @@ defmodule ChatFCoinWeb.ChatBotController do
     |> ChatBotControllerProtocol.webhook()
   end
 
-  def webhook(conn, %{"object" => object, "entry" => entries}) do
+  def webhook(conn, %{"object" => object, "entry" => entries} = params) do
+    IO.inspect(params)
     # TODO: It can be changed with dynamic parameters in the future
     # TODO: `get_message` value should be sanitized even Facebook is a safe external service, change it in the future
     get_message = List.first(entries)["messaging"] |> List.first
