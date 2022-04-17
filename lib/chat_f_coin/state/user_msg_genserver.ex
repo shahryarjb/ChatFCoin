@@ -97,8 +97,8 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
 
   @impl true
   def handle_continue({:sending_message, :add}, %UserMsgDynamicGenserver{} = state) do
-    # TODO: send a message which includs help items and say hi with user first_name
-    # TODO: check is there a problem in user's answer or not
+    # Because it is the first message user send to us, we do not need to compare, hence we should send an auto message to user
+    ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], 1)
     {:noreply, state}
   end
 
