@@ -3,20 +3,21 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   require Logger
   alias ChatFCoin.{UserMsgDynamicSupervisor, UserMsgDynamicGenserver}
 
-  defstruct [:user_id, :user_info, :user_answers, :last_try, :parent_pid, social_network: :facebook]
+  defstruct [:user_id, :user_info, :user_answers, :last_try, :parent_pid, social_network: "facebook"]
 
-  @type user_id() :: integer() | String.t()
+  @type user_id() :: String.t()
   @type user_info() :: map()
-  @type user_answers() :: [integer()]
+  @type user_answers() :: [integer()] | integer()
   @type last_try() :: NaiveDateTime.t()
   @type parent_pid() :: pid() | nil
-  @type social_network() :: :facebook, :telegram
+  @type social_network() :: String.t()
   @type user_msg() :: %UserMsgDynamicGenserver{
     user_id: user_id(),
     user_info: user_info(),
     user_answers: user_answers(),
     last_try: last_try(),
-    parent_pid: parent_pid()
+    parent_pid: parent_pid(),
+    social_network: social_network()
   }
   @type t :: user_msg()
 
@@ -42,7 +43,6 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   def push_call(%UserMsgDynamicGenserver{} = element) do
     case UserMsgDynamicSupervisor.start_job(%{id: element.user_id, type: element.social_network, parent_pid: element.parent_pid}) do
       {:ok, status, pid} ->
-        if Mix.env() == :test, do: Logger.warn("#{element.user_info["first_name"]} is being pushed")
         GenServer.call(pid, {:push, status, element})
       {:error, result} ->  {:error, :push, result}
     end

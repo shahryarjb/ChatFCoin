@@ -6,6 +6,7 @@ end
 
 defimpl ChatFCoin.ChatBotControllerProtocol, for: ChatFCoin.Plugin.FacebookSubscribe.FacebookSubscribeBehaviour do
   alias ChatFCoin.Plugin.FacebookSubscribe.FacebookSubscribeBehaviour
+  alias ChatFCoin.Plugin.FacebookUserMessage.FacebookUserMessageBehaviour
   import Plug.Conn
 
   @spec webhook(FacebookSubscribeBehaviour.t()) :: Plug.Conn.t()
@@ -32,13 +33,27 @@ end
 
 defimpl ChatFCoin.ChatBotControllerProtocol, for: ChatFCoin.Plugin.FacebookUserMessage.FacebookUserMessageBehaviour do
   alias ChatFCoin.Plugin.FacebookUserMessage.FacebookUserMessageBehaviour
+  alias ChatFCoin.UserMsgDynamicGenserver
   import Plug.Conn
 
   @spec webhook(FacebookUserMessageBehaviour.t()) :: Plug.Conn.t()
-  def webhook(%FacebookUserMessageBehaviour{message_id: _message_id, message: _message, sender_id: _sender_id, object: "page", conn: conn}) do
+  def webhook(%FacebookUserMessageBehaviour{message_id: message_id, message: message, sender_id: sender_id, object: "page", conn: conn}) do
     # TODO: send a new message to user and ask them or say something
-    # TODO: Add an event to make the code modular
-    send_resp(conn, 200, "EVENT_RECEIVED")
+    state =
+      %FacebookUserMessageBehaviour{message_id: message_id, message: message, sender_id: sender_id, object: "page", conn: conn}
+
+    # TODO: we need convert message to integer, so after that please replace with [1]
+    %UserMsgDynamicGenserver{user_id: sender_id, user_answers: [1], parent_pid: self(), social_network: "facebook"}
+    |> UserMsgDynamicGenserver.push_call()
+    |> case do
+      {:error, :push, _result} ->
+        %FacebookUserMessageBehaviour{conn: conn, object: "nopage"}
+        |> ChatFCoin.ChatBotControllerProtocol.webhook()
+
+      _pushed_value ->
+        MishkaInstaller.Hook.call(event: "on_facebook_user_message", state: state).conn
+        |> send_resp(200, "EVENT_RECEIVED")
+    end
   end
 
   def webhook(%FacebookUserMessageBehaviour{conn: conn} = _params), do: send_resp(conn, 404, "NOT_FOUND")
