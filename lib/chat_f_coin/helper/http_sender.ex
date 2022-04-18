@@ -60,7 +60,7 @@ defmodule ChatFCoin.Helper.HttpSender do
   end
 
   def run_message(user_id, first_name, number) when number in [1, 2] do
-    get_last_coins(5, user_id, first_name, if(number == 1, do: "id", else: "name"))
+    get_last_coins(5, user_id, first_name, if(number == 2, do: "id", else: "name"))
   end
 
   def run_message(user_id, first_name, 3) do
@@ -105,7 +105,7 @@ defmodule ChatFCoin.Helper.HttpSender do
       |> Jason.decode!()
       |> Enum.map(& {&1["#{type}"], "CoinID:#{&1["id"]}"})
 
-    number = if(type == "id", do: 1, else: 2)
+    number = if(type == "id", do: 2, else: 1)
     message_body(:temporary_button, user_id, buttons ++ [{"Cancel Operation", "CancelOperation"}], sender_msg(number, user_first_name))
     |> send_message()
     |> handle_message_status(user_id, number)
