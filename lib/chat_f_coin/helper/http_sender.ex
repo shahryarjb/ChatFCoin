@@ -42,7 +42,9 @@ defmodule ChatFCoin.Helper.HttpSender do
   end
 
   def get_coin_history(user_id, coin_id, currency, days, first_name) do
-    query = %{"id" => coin_id, "vs_currency" => currency, "days" => days}
+    query =
+      %{"id" => coin_id, "vs_currency" => currency, "days" => days}
+      |> URI.encode_query
     url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?#{query}"
     Finch.build(:get, url)
     |> Finch.request(@request_name)
