@@ -43,7 +43,7 @@ defmodule ChatFCoin.Helper.HttpSender do
 
   def get_coin_history(user_id, coin_id, currency, days, first_name) do
     query =
-      %{"id" => coin_id, "vs_currency" => currency, "days" => days}
+      %{"id" => coin_id, "vs_currency" => currency, "days" => days, "interval" => "daily"}
       |> URI.encode_query
     url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?#{query}"
     Finch.build(:get, url)
@@ -118,9 +118,18 @@ defmodule ChatFCoin.Helper.HttpSender do
   defp handle_coin_history({:ok, %Finch.Response{body: body, headers: _headers, status: _status}}, user_id, _user_first_name) do
     data = body |> Jason.decode!()
     msg =
-      ["This is the 14 Days log"] ++ Enum.map(data["prices"], fn [time, price] -> "Time: #{time} -- Price: #{price} \n" end)
+      ["This is the 14 Days log"] ++ Enum.map(data["prices"], fn [time, price] -> "Time: #{convert_unix_to_string(time)} -- Price: #{price} \n" end)
       |> Enum.join("\n ")
     message_body(:shor, user_id, msg)
+    |> send_message()
+  end
+
+  def convert_unix_to_string(timestamp) do
+    time =
+      timestamp
+      |> DateTime.from_unix!(:millisecond)
+
+    "#{time.year}/#{time.month}/#{time.day}"
   end
 
   defp sender_msg(message, first_name) do
