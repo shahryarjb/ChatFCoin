@@ -21,6 +21,11 @@ config :chat_f_coin, ChatFCoinWeb.Endpoint,
   facebook_chat_app_id: System.get_env("FACEBOOK_CHAT_APP_ID"),
   facebook_chat_secret: System.get_env("FACEBOOK_CHAT_SECRET")
 
+config :mishka_installer, :basic,
+  repo: ChatFCoin.Repo,
+  pubsub: ChatFCoin.PubSub,
+  html_router: ChatFCoinWeb.Router.Helpers
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

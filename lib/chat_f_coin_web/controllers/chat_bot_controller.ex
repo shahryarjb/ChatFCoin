@@ -66,7 +66,7 @@ defmodule ChatFCoinWeb.ChatBotController do
     # TODO: `get_message` value should be sanitized even Facebook is a safe external service, change it in the future
     get_message = List.first(entries)["messaging"] |> List.first
     %FacebookUserMessageBehaviour{
-      message_id: List.first(entries)["id"], message: get_message["message"]["text"],
+      message_id: List.first(entries)["id"], message: get_message["message"],
       sender_id: get_message["sender"]["id"], object: object, conn: conn
     }
     |> ChatBotControllerProtocol.webhook()

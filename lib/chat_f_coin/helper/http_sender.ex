@@ -33,13 +33,13 @@ defmodule ChatFCoin.Helper.HttpSender do
   # It should be noted you can create some useful condition to make code safer like if you cannot access to API what should be done?
   defp handle_user_info(_), do: %{"first_name" => "Dear client", "last_name" => "", "profile_pic" => "", "id" => ""}
 
-  @spec run_message(String.t(), String.t(), 1) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
-  def run_message(user_id, user_first_name, 1) do
+  @spec run_message(String.t(), String.t(), integer()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
+  def run_message(user_id, user_first_name, 0) do
     message = "Hi #{user_first_name}, Please select one of the bottom way to load list of coin"
     buttons = [{"Get Coins with Name", "CoinWithName"}, {"Get Coins with Id", "CoinWithId"}, {"Cancel Operation", "Cancel"}]
     message_body(:temporary_button, user_id, buttons, message)
     |> send_message()
-    |> handle_message_status(user_id, 1)
+    |> handle_message_status(user_id, 0)
   end
 
   defp handle_message_status({:error, exception}, user_id, message_number) do

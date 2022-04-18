@@ -12,6 +12,13 @@ defmodule ChatFCoin.Application do
       name: UserMsgOtpRunner
     ]
 
+    plugin =
+      if Mix.env() in [:dev, :prod] do
+        # It is for test if you want to create your own plugin
+        [%{id: ChatFCoin.Plugin.HttpSendMessage, start: {ChatFCoin.Plugin.HttpSendMessage, :start_link, [[]]}}]
+      else
+        []
+      end
     children = [
       # Start the Ecto repository
       ChatFCoin.Repo,
@@ -25,10 +32,8 @@ defmodule ChatFCoin.Application do
       # {ChatFCoin.Worker, arg}
       {Finch, name: MyHttpClient},
       {Registry, keys: :unique, name: UserMSGRegistry},
-      {DynamicSupervisor, plugin_runner_config},
-      # It is for test if you want to create your own plugin
-      # %{id: ChatFCoin.Plugin.HttpSendMessage, start: {ChatFCoin.Plugin.HttpSendMessage, :start_link, [[]]}},
-    ]
+      {DynamicSupervisor, plugin_runner_config}
+    ] ++ plugin
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options

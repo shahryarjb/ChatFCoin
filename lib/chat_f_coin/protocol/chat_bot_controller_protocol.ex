@@ -42,7 +42,7 @@ defimpl ChatFCoin.ChatBotControllerProtocol, for: ChatFCoin.Plugin.FacebookUserM
     state =
       %FacebookUserMessageBehaviour{message_id: message_id, message: message, sender_id: sender_id, object: "page", conn: conn}
 
-    %UserMsgDynamicGenserver{user_id: sender_id, user_answers: [UserMsgDynamicGenserver.user_message(message)], parent_pid: self(), social_network: "facebook"}
+    %UserMsgDynamicGenserver{user_id: sender_id, user_answers: [UserMsgDynamicGenserver.user_message(message["quick_reply"]["payload"])], parent_pid: self(), social_network: "facebook"}
     |> UserMsgDynamicGenserver.push_call()
     |> case do
       {:error, :push, _result} ->

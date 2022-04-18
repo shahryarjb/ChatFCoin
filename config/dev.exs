@@ -1,10 +1,5 @@
 import Config
 
-config :mishka_installer, :basic,
-  repo: ChatFCoin.Repo,
-  pubsub: ChatFCoin.PubSub,
-  html_router: ChatFCoinWeb.Router.Helpers
-
 # Configure your database
 config :chat_f_coin, ChatFCoin.Repo,
   username: System.get_env("DB_USERNAME") || "postgres",

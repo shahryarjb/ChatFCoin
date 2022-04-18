@@ -115,7 +115,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   @impl true
   def handle_continue({:sending_message, :add}, %UserMsgDynamicGenserver{} = state) do
     # Because it is the first message user send to us, we do not need to compare, hence we should send an auto message to user
-    ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], 1)
+    ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], 0)
     {:noreply, state}
   end
 
@@ -141,8 +141,8 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
 
   def user_message(message) do
     %{
-      "List of Coin with name" => 1,
-      "List of Coin with id" => 2,
+      "CoinWithName" => 1,
+      "CoinWithId" => 2,
       "Clean my activity" => 3
     }[message]
   end
