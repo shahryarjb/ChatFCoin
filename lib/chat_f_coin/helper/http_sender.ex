@@ -41,6 +41,14 @@ defmodule ChatFCoin.Helper.HttpSender do
     |> handle_coins(user_id, first_name, type)
   end
 
+  def get_coin_history(user_id, coin_id, currency, days, first_name) do
+    query = %{"id" => coin_id, "vs_currency" => currency, "days" => days}
+    url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?#{query}"
+    Finch.build(:get, url)
+    |> Finch.request(@request_name)
+    |> handle_coin_history(user_id, first_name)
+  end
+
   @spec run_message(String.t(), String.t(), integer()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
   def run_message(user_id, user_first_name, number) when number in [0, 100, 500] do
     buttons = [{"Get Coins with Name", "CoinWithName"}, {"Get Coins with Id", "CoinWithId"}, {"Cancel Operation", "CancelOperation"}]
@@ -54,8 +62,14 @@ defmodule ChatFCoin.Helper.HttpSender do
   end
 
   def run_message(user_id, first_name, 3) do
+    ChatFCoin.UserMsgDynamicGenserver.delete(user_id: user_id)
     message_body(:shor, user_id, sender_msg(3, first_name))
     |> send_message()
+  end
+
+  def run_message(user_id, first_name, coin_id) do
+    # TODO: send him selector to load coin again
+    get_coin_history(user_id, coin_id, "usd", 14, first_name)
   end
 
   defp handle_message_status({:error, exception}, user_id, message_number) do
@@ -87,12 +101,24 @@ defmodule ChatFCoin.Helper.HttpSender do
     buttons =
       body
       |> Jason.decode!()
-      |> Enum.map(& {&1["#{type}"], &1["id"]})
+      |> Enum.map(& {&1["#{type}"], "CoinID:#{&1["id"]}"})
 
     number = if(type == "id", do: 1, else: 2)
     message_body(:temporary_button, user_id, buttons ++ [{"Cancel Operation", "CancelOperation"}], sender_msg(number, user_first_name))
     |> send_message()
     |> handle_message_status(user_id, number)
+  end
+
+  defp handle_coin_history({:error, _error}, user_id, user_first_name) do
+    run_message(user_id, user_first_name, 500)
+  end
+
+  defp handle_coin_history({:ok, %Finch.Response{body: body, headers: _headers, status: _status}}, user_id, _user_first_name) do
+    data = body |> Jason.decode!()
+    msg =
+      ["This is the 14 Days log"] ++ Enum.map(data["prices"], fn [time, price] -> "Time: #{time} -- Price: #{price} \n" end)
+      |> Enum.join("\n ")
+    message_body(:shor, user_id, msg)
   end
 
   defp sender_msg(message, first_name) do

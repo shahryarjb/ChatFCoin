@@ -141,6 +141,8 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     {:via, Registry, {UserMSGRegistry, id, value}}
   end
 
+  def user_message("CoinID:" <> coin_id), do: coin_id
+
   def user_message(message) do
     # TODO: it should be changed with Gettext
     %{
