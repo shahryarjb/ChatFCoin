@@ -1,5 +1,5 @@
 defmodule ChatFCoin.Helper.HttpSender do
-  @url "https://graph.facebook.com/v2.6/me/messages"
+  @facebook_url "https://graph.facebook.com/v2.6/me/messages"
   @request_name MyHttpClient
 
   # If there is another chatbot like telegram, I prefer to change this HTTP sender module as helper not for specific social network
@@ -11,7 +11,7 @@ defmodule ChatFCoin.Helper.HttpSender do
       {"Accept", "application/json"}
     ]
 
-    Finch.build(:post, @url <> "?access_token=#{access_token}", headers, body |> Jason.encode!())
+    Finch.build(:post, @facebook_url <> "?access_token=#{access_token}", headers, body |> Jason.encode!())
     |> Finch.request(@request_name)
   end
 
@@ -33,13 +33,29 @@ defmodule ChatFCoin.Helper.HttpSender do
   # It should be noted you can create some useful condition to make code safer like if you cannot access to API what should be done?
   defp handle_user_info(_), do: %{"first_name" => "Dear client", "last_name" => "", "profile_pic" => "", "id" => ""}
 
+
+  def get_last_coins(per_page, user_id, first_name, type) do
+    url = "https://api.coingecko.com/api/v3/coins?per_page=#{per_page}"
+    Finch.build(:get, url)
+    |> Finch.request(@request_name)
+    |> handle_coins(user_id, first_name, type)
+  end
+
   @spec run_message(String.t(), String.t(), integer()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
-  def run_message(user_id, user_first_name, 0) do
-    message = "Hi #{user_first_name}, Please select one of the bottom way to load list of coin"
-    buttons = [{"Get Coins with Name", "CoinWithName"}, {"Get Coins with Id", "CoinWithId"}, {"Cancel Operation", "Cancel"}]
-    message_body(:temporary_button, user_id, buttons, message)
+  def run_message(user_id, user_first_name, number) when number in [0, 100, 500] do
+    buttons = [{"Get Coins with Name", "CoinWithName"}, {"Get Coins with Id", "CoinWithId"}, {"Cancel Operation", "CancelOperation"}]
+    message_body(:temporary_button, user_id, buttons, sender_msg(number, user_first_name))
     |> send_message()
-    |> handle_message_status(user_id, 0)
+    |> handle_message_status(user_id, number)
+  end
+
+  def run_message(user_id, first_name, number) when number in [1, 2] do
+    get_last_coins(5, user_id, first_name, if(number == 1, do: "id", else: "name"))
+  end
+
+  def run_message(user_id, first_name, 3) do
+    message_body(:shor, user_id, sender_msg(3, first_name))
+    |> send_message()
   end
 
   defp handle_message_status({:error, exception}, user_id, message_number) do
@@ -61,5 +77,33 @@ defmodule ChatFCoin.Helper.HttpSender do
   def message_body(:temporary_button, user_id, buttons, message) do
     buttons = Enum.map(buttons, fn {title, payload} -> %{content_type: "text", title: title, payload: "#{payload}"} end)
     %{recipient: %{id: user_id}, messaging_type: "RESPONSE", message: %{text:  "#{message}", quick_replies: buttons}}
+  end
+
+  defp handle_coins({:error, _error}, user_id, user_first_name, _type) do
+    run_message(user_id, user_first_name, 500)
+  end
+
+  defp handle_coins({:ok, %Finch.Response{body: body, headers: _headers, status: _status}}, user_id, user_first_name, type) do
+    buttons =
+      body
+      |> Jason.decode!()
+      |> Enum.map(& {&1["#{type}"], &1["id"]})
+
+    number = if(type == "id", do: 1, else: 2)
+    message_body(:temporary_button, user_id, buttons ++ [{"Cancel Operation", "CancelOperation"}], sender_msg(number, user_first_name))
+    |> send_message()
+    |> handle_message_status(user_id, number)
+  end
+
+  defp sender_msg(message, first_name) do
+    # TODO: it should be changed with Gettext
+    %{
+      0 => "Hi #{first_name}, Please select one of the bottom way to load list of coins",
+      1 => "For more information please select a coin",
+      2 => "For more information please select a coin",
+      3 => "Thank you, your activities are going to be deleted in our state completely very soon.",
+      100 => "Dear #{first_name}, Unfortunately, your answer is not in our list of requirements. Please select only from the options below",
+      500 => "Unfortunately, we can not access to Coin server!! Please try again or cancel operation and try later.",
+    }[message]
   end
 end

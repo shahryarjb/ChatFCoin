@@ -121,18 +121,20 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
 
   @impl true
   def handle_continue({:sending_message, :edit}, %UserMsgDynamicGenserver{} = state) do
-    # TODO: do user job based on user last answer number from user_answers list
-    # TODO: if user send a duplicate number from user_answers list, tell him/her → wants to continue with last question or new request!?
-    # TODO: if he/she selects new request maybe did before, so we need to change the list and delete all the previous number and put this just
-    # TODO: if he wants to continue with last question, so send him the message or next selector
-    # TODO: check is there a problem in user's answer or not
-    # TODO: if he/her repeat pervious answer show him/her 3 btn like, { you want last question?, clean and start again? or continue}
+    # With this easy way, you can have all the user's messages and analytic them how many wrong messages exist.
+    # It should be noted that this way can reduce your conditions
+    if !is_nil(number = List.last(state.user_answers)) do
+      ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], number)
+    else
+      ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], 100)
+    end
     {:noreply, state}
   end
 
   @impl true
   def terminate(reason, %UserMsgDynamicGenserver{} = state) do
-      Logger.warn("#{Map.get(state, :user_id)} state was Terminated, Reason of Terminate #{inspect(reason)}")
+    # Introduce your strategy
+    Logger.warn("#{Map.get(state, :user_id)} state was Terminated, Reason of Terminate #{inspect(reason)}")
   end
 
   defp via(id, value) do
@@ -140,10 +142,11 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   end
 
   def user_message(message) do
+    # TODO: it should be changed with Gettext
     %{
       "CoinWithName" => 1,
       "CoinWithId" => 2,
-      "Clean my activity" => 3
+      "CancelOperation" => 3
     }[message]
   end
 end
