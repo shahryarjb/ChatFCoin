@@ -3,7 +3,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   require Logger
   alias ChatFCoin.{UserMsgDynamicSupervisor, UserMsgDynamicGenserver}
 
-  defstruct [:user_id, :user_info, :user_answers, :last_try, :parent_pid, social_network: "facebook"]
+  defstruct [:user_id, :user_info, :last_try, :parent_pid, user_answers: [], social_network: "facebook"]
 
   @type user_id() :: String.t()
   @type user_info() :: map()
@@ -48,19 +48,19 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     end
   end
 
-  def get(network: network_name) do
-    case UserMsgDynamicSupervisor.get_user_msg_pid(network_name) do
-      {:ok, :get_user_msg_pid, pid} -> GenServer.call(pid, {:pop, :network})
+  def get(user_id: user_id) do
+    case UserMsgDynamicSupervisor.get_user_msg_pid(user_id) do
+      {:ok, :get_user_msg_pid, pid} -> GenServer.call(pid, {:pop, :user_id})
       {:error, :get_user_msg_pid} -> {:error, :get, :not_found}
     end
   end
 
   def get_all(network: network_name) do
-    UserMsgDynamicSupervisor.running_imports(network_name) |> Enum.map(&get(network: &1.id))
+    UserMsgDynamicSupervisor.running_imports(network_name) |> Enum.map(&get(user_id: &1.id))
   end
 
   def get_all() do
-    UserMsgDynamicSupervisor.running_imports() |> Enum.map(&get(network: &1.id))
+    UserMsgDynamicSupervisor.running_imports() |> Enum.map(&get(user_id: &1.id))
   end
 
   # Callbacks
@@ -74,25 +74,29 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   @impl true
   def handle_call({:push, status, %UserMsgDynamicGenserver{} = element}, _from, %UserMsgDynamicGenserver{} = state) do
     element =
-      Map.merge(element, %{user_answers: state.user_answers ++ element.user_answers})
+      Map.merge(element, %{
+        last_try: NaiveDateTime.utc_now(),
+        user_answers: state.user_answers ++ element.user_answers,
+        user_info: state.user_info
+      })
     {:reply, element, element, {:continue, {:sending_message, status}}}
   end
 
   @impl true
-  def handle_call({:pop, :network}, _from, %UserMsgDynamicGenserver{} = state) do
+  def handle_call({:pop, :user_id}, _from, %UserMsgDynamicGenserver{} = state) do
     {:reply, state, state}
   end
 
   @impl true
   def handle_continue({:user_evaluation}, %UserMsgDynamicGenserver{} = state) do
-    state =
+    new_state =
       state
       |> Map.merge(%{
         user_info: ChatFCoin.Helper.HttpSender.get_user_info(state.user_id),
         last_try: NaiveDateTime.utc_now()
       })
 
-    {:noreply, state}
+    {:noreply, new_state}
   end
 
   @impl true
