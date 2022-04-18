@@ -5,15 +5,13 @@ defmodule ChatFCoin.Helper.HttpSender do
   # If there is another chatbot like telegram, I prefer to change this HTTP sender module as helper not for specific social network
   # Not it is like a hardcode sender and it is not my type in coding
   @spec send_message(any, binary | URI.t()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
-  def send_message(body, url \\ @url) do
-    access_token = ChatFCoin.get_config(:facebook_chat_accsess_token)
-
+  def send_message(body, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)) do
     headers = [
       {"Content-type", "application/json"},
       {"Accept", "application/json"}
     ]
 
-    Finch.build(:post, url <> "?access_token=#{access_token}", headers, body |> Jason.encode!())
+    Finch.build(:post, @url <> "?access_token=#{access_token}", headers, body |> Jason.encode!())
     |> Finch.request(@request_name)
   end
 
@@ -46,8 +44,12 @@ defmodule ChatFCoin.Helper.HttpSender do
 
   defp handle_message_status({:error, exception}, user_id, message_number) do
     # TO load a plugin call hook to let developer create a custom plugin for this section of http sender
-    state = %ChatFCoin.Plugin.HttpSendMessage.HttpSendMessageBehaviour{message_number: message_number, sender_id: user_id, exception: exception}
-    {:error, MishkaInstaller.Hook.call(event: "on_http_send_message", state: state).exception}
+    if Mix.env() in [:dev, :prod] do
+      state = %ChatFCoin.Plugin.HttpSendMessage.HttpSendMessageBehaviour{message_number: message_number, sender_id: user_id, exception: exception}
+      {:error, MishkaInstaller.Hook.call(event: "on_http_send_message", state: state).exception}
+    else
+      {:error, exception}
+    end
   end
 
   defp handle_message_status(result, _user_id, _message_number), do: result

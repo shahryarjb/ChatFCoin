@@ -1,5 +1,10 @@
 import Config
 
+config :mishka_installer, :basic,
+  repo: ChatFCoin.Repo,
+  pubsub: ChatFCoin.PubSub,
+  html_router: ChatFCoinWeb.Router.Helpers
+
 # For production, don't forget to configure the url host
 # to something meaningful, Phoenix uses this information
 # when generating URLs.

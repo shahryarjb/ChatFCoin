@@ -1,5 +1,10 @@
 import Config
 
+config :mishka_installer, :basic,
+  repo: ChatFCoin.Repo,
+  pubsub: ChatFCoin.PubSub,
+  html_router: ChatFCoinWeb.Router.Helpers
+
 # Configure your database
 config :chat_f_coin, ChatFCoin.Repo,
   username: System.get_env("DB_USERNAME") || "postgres",
@@ -7,7 +12,7 @@ config :chat_f_coin, ChatFCoin.Repo,
   hostname: System.get_env("DB_HOSTNAME") || "localhost",
   database: System.get_env("DB_NAME") || "chat_f_coin_dev",
   show_sensitive_data_on_connection_error: true,
-  pool_size: 10
+  pool_size: 30
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

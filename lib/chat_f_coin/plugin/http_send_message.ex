@@ -27,25 +27,26 @@ defmodule ChatFCoin.Plugin.HttpSendMessage do
     @optional_callbacks stop: 1, restart: 1, start: 1, delete: 1, unregister: 1 # Developer can use this callbacks if he/she needs
   end
 
-  use MishkaInstaller.Hook,
-  module: __MODULE__,
-  behaviour: HttpSendMessageBehaviour,
-  event: :on_http_send_message,
-  initial: []
 
-  @spec initial(list()) :: {:ok, HttpSendMessageBehaviour.ref(), list()}
-  def initial(args) do
-    event = %PluginState{name: "ChatFCoin.Plugin.HttpSendMessage", event: Atom.to_string(@ref), priority: 1}
-    Hook.register(event: event)
-    {:ok, @ref, args}
-  end
+  # use MishkaInstaller.Hook,
+  # module: __MODULE__,
+  # behaviour: HttpSendMessageBehaviour,
+  # event: :on_http_send_message,
+  # initial: []
 
-  @spec call(HttpSendMessageBehaviour.t()) :: {:reply, HttpSendMessageBehaviour.t()}
-  def call(%HttpSendMessageBehaviour{} = state) do
-    # TODO: This is a simple plugin, and you can call your code here
-    # TODO: it should be noted even you call a hook in your code it does not force you to create an empty plugin like it
-    # TODO: it just wants to show how you can create a plugin
-    # TODO: for more information please see my project: https://github.com/mishka-group/mishka_installer
-    {:reply, state}
-  end
+  # @spec initial(list()) :: {:ok, HttpSendMessageBehaviour.ref(), list()}
+  # def initial(args) do
+  #   event = %PluginState{name: "ChatFCoin.Plugin.HttpSendMessage", event: Atom.to_string(@ref), priority: 1}
+  #   Hook.register(event: event)
+  #   {:ok, @ref, args}
+  # end
+
+  # @spec call(HttpSendMessageBehaviour.t()) :: {:reply, HttpSendMessageBehaviour.t()}
+  # def call(%HttpSendMessageBehaviour{} = state) do
+  #   # TODO: This is a simple plugin, and you can call your code here
+  #   # TODO: it should be noted even you call a hook in your code it does not force you to create an empty plugin like it
+  #   # TODO: it just wants to show how you can create a plugin
+  #   # TODO: for more information please see my project: https://github.com/mishka-group/mishka_installer
+  #   {:reply, state}
+  # end
 end

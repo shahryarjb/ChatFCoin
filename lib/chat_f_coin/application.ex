@@ -26,8 +26,8 @@ defmodule ChatFCoin.Application do
       {Finch, name: MyHttpClient},
       {Registry, keys: :unique, name: UserMSGRegistry},
       {DynamicSupervisor, plugin_runner_config},
-      %{id: ChatFCoin.Plugin.FacebookSubscribe, start: {ChatFCoin.Plugin.FacebookSubscribe, :start_link, [[]]}},
-      %{id: ChatFCoin.Plugin.FacebookUserMessage, start: {ChatFCoin.Plugin.FacebookUserMessage, :start_link, [[]]}}
+      # It is for test if you want to create your own plugin
+      # %{id: ChatFCoin.Plugin.HttpSendMessage, start: {ChatFCoin.Plugin.HttpSendMessage, :start_link, [[]]}},
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

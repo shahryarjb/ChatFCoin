@@ -28,26 +28,4 @@ defmodule ChatFCoin.Plugin.FacebookUserMessage do
     @callback unregister(registerd_info()) :: optional_callbacks() # Unregister of hook module
     @optional_callbacks stop: 1, restart: 1, start: 1, delete: 1, unregister: 1 # Developer can use this callbacks if he/she needs
   end
-
-  use MishkaInstaller.Hook,
-  module: __MODULE__,
-  behaviour: FacebookUserMessageBehaviour,
-  event: :on_facebook_user_message,
-  initial: []
-
-  @spec initial(list()) :: {:ok, FacebookUserMessageBehaviour.ref(), list()}
-  def initial(args) do
-    event = %PluginState{name: "ChatFCoin.Plugin.FacebookUserMessage", event: Atom.to_string(@ref), priority: 1}
-    Hook.register(event: event)
-    {:ok, @ref, args}
-  end
-
-  @spec call(FacebookUserMessageBehaviour.t()) :: {:reply, FacebookUserMessageBehaviour.t()}
-  def call(%FacebookUserMessageBehaviour{} = state) do
-    # TODO: This is a simple plugin, and you can call your code here
-    # TODO: it should be noted even you call a hook in your code it does not force you to create an empty plugin like it
-    # TODO: it just wants to show how you can create a plugin
-    # TODO: for more information please see my project: https://github.com/mishka-group/mishka_installer
-    {:reply, state}
-  end
 end

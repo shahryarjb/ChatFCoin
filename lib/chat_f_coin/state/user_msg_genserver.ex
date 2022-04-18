@@ -63,6 +63,14 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     UserMsgDynamicSupervisor.running_imports() |> Enum.map(&get(user_id: &1.id))
   end
 
+  def delete(user_id: user_id) do
+    case UserMsgDynamicSupervisor.get_user_msg_pid(user_id) do
+      {:ok, :get_user_msg_pid, pid} ->
+        GenServer.cast(pid, {:delete, :user_id})
+      {:error, :get_user_msg_pid} -> {:error, :delete, :not_found}
+    end
+  end
+
   # Callbacks
   @impl true
   def init(%UserMsgDynamicGenserver{} = state) do
@@ -85,6 +93,11 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   @impl true
   def handle_call({:pop, :user_id}, _from, %UserMsgDynamicGenserver{} = state) do
     {:reply, state, state}
+  end
+
+  @impl true
+  def handle_cast({:delete, :user_id}, %UserMsgDynamicGenserver{} = state) do
+    {:stop, :normal, state}
   end
 
   @impl true
@@ -115,6 +128,11 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     # TODO: check is there a problem in user's answer or not
     # TODO: if he/her repeat pervious answer show him/her 3 btn like, { you want last question?, clean and start again? or continue}
     {:noreply, state}
+  end
+
+  @impl true
+  def terminate(reason, %UserMsgDynamicGenserver{} = state) do
+      Logger.warn("#{Map.get(state, :user_id)} state was Terminated, Reason of Terminate #{inspect(reason)}")
   end
 
   defp via(id, value) do
