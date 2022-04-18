@@ -7,6 +7,11 @@ defmodule ChatFCoin.Application do
 
   @impl true
   def start(_type, _args) do
+    plugin_runner_config = [
+      strategy: :one_for_one,
+      name: UserMsgOtpRunner
+    ]
+
     children = [
       # Start the Ecto repository
       ChatFCoin.Repo,
@@ -19,6 +24,8 @@ defmodule ChatFCoin.Application do
       # Start a worker by calling: ChatFCoin.Worker.start_link(arg)
       # {ChatFCoin.Worker, arg}
       {Finch, name: MyHttpClient},
+      {Registry, keys: :unique, name: UserMSGRegistry},
+      {DynamicSupervisor, plugin_runner_config},
       %{id: ChatFCoin.Plugin.FacebookSubscribe, start: {ChatFCoin.Plugin.FacebookSubscribe, :start_link, [[]]}},
       %{id: ChatFCoin.Plugin.FacebookUserMessage, start: {ChatFCoin.Plugin.FacebookUserMessage, :start_link, [[]]}}
     ]

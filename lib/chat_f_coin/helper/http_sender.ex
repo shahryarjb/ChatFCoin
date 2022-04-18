@@ -52,7 +52,7 @@ defmodule ChatFCoin.Helper.HttpSender do
 
   defp handle_message_status(result, _user_id, _message_number), do: result
 
-  @spec message_body(:shor, integer(), String.t()) :: %{message: %{text: any}, recipient: %{id: any}}
+  @spec message_body(:shor, String.t(), String.t()) :: %{message: %{text: any}, recipient: %{id: any}}
   def message_body(:shor, user_id, message), do: %{recipient: %{id: user_id}, message: %{text: message}}
 
   @spec message_body(:temporary_button, String.t(), [tuple()], String.t()) :: map()
