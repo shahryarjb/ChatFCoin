@@ -118,7 +118,7 @@ defmodule ChatFCoin.Helper.HttpSender do
   defp handle_coin_history({:ok, %Finch.Response{body: body, headers: _headers, status: _status}}, user_id, _user_first_name) do
     data = body |> Jason.decode!()
     msg =
-      ["This is the 14 Days log"] ++ Enum.map(data["prices"], fn [time, price] -> "Time: #{convert_unix_to_string(time)} -- Price: #{price} \n" end)
+      ["This is the 14 Days log \n"] ++ Enum.map(data["prices"], fn [time, price] -> "* Time: #{convert_unix_to_string(time)} -- Price: #{price} \n" end)
       |> Enum.join("\n ")
     message_body(:shor, user_id, msg)
     |> send_message()
