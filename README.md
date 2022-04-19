@@ -6,6 +6,13 @@ This is a training project to build chatbot for Facebook with elixir and phoenix
 
 ---
 
+## Quick View
+
+
+https://user-images.githubusercontent.com/8413604/163977114-e0ce62e6-5ca7-4926-9218-cedcdc02487c.mp4
+
+
+
 ### Installation
 
 It is a normal Phoenix project, and you can deploy on your system, but I prepared a simple docker for you.
@@ -16,13 +23,9 @@ It is a normal Phoenix project, and you can deploy on your system, but I prepare
 * FACEBOOK_CHAT_PAGE_ID
 * FACEBOOK_CHAT_APP_ID
 * FACEBOOK_CHAT_SECRET
-
-> how to config Facebook Messenger Bot: https://www.youtube.com/watch?v=5wPrfMxvrgo and the document: https://developers.facebook.com/docs/messenger-platform/getting-started
-
-
----
-
 * DB_USERNAME
 * DB_PASSWORD
 * DB_HOSTNAME
 * DB_NAME
+
+> how to config Facebook Messenger Bot: https://www.youtube.com/watch?v=5wPrfMxvrgo and the document: https://developers.facebook.com/docs/messenger-platform/getting-started
