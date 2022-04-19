@@ -6,23 +6,28 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 
-if System.get_env("GITHUB_ACTION") do
-  IO.inspect("This is a github acction link")
-  config :chat_f_coin, ChatFCoin.Repo,
-    url: System.get_env("DATABASE_URL") || "postgres://localhost:5432/chat_f_coin_test",
-    pool: Ecto.Adapters.SQL.Sandbox,
-    pool_size: 10,
-    show_sensitive_data_on_connection_error: true
-else
-  config :chat_f_coin, ChatFCoin.Repo,
-    username: System.get_env("DB_USERNAME") || "postgres",
-    password: System.get_env("DB_PASSWORD") || "postgres",
-    hostname: System.get_env("DB_HOSTNAME") || "localhost",
-    database: "chat_f_coin_test",
-    pool: Ecto.Adapters.SQL.Sandbox,
-    pool_size: 10
-end
+# if System.get_env("GITHUB_ACTION") do
+#   IO.inspect("This is a github acction link")
+#   config :chat_f_coin, ChatFCoin.Repo,
+#     url: System.get_env("DATABASE_URL") || "postgres://postgres:localhost:5432/chat_f_coin_test",
+#     pool: Ecto.Adapters.SQL.Sandbox,
+#     pool_size: 10,
+#     show_sensitive_data_on_connection_error: true
+# else
+#   config :chat_f_coin, ChatFCoin.Repo,
+#     username: System.get_env("DB_USERNAME") || "postgres",
+#     password: System.get_env("DB_PASSWORD") || "postgres",
+#     hostname: System.get_env("DB_HOSTNAME") || "localhost",
+#     database: "chat_f_coin_test",
+#     pool: Ecto.Adapters.SQL.Sandbox,
+#     pool_size: 10
+# end
 
+config :chat_f_coin, ChatFCoin.Repo,
+  url: "ecto://postgres:postgres@localhost/chat_f_coin_test",
+  pool: Ecto.Adapters.SQL.Sandbox,
+  pool_size: 10,
+  show_sensitive_data_on_connection_error: true
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
