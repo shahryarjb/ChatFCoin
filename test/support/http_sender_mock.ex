@@ -1,5 +1,5 @@
 defmodule ChatFCoin.Helper.HttpSenderMock do
-  @behaviour ChatFCoin.Helper.HttpClient
+  @behaviour ChatFCoin.Helper.HttpClientBehaviour
 
   @impl true
   def http_send_message(_body, _token) do

@@ -3,7 +3,7 @@ defmodule ChatFCoin.Helper.HttpSender do
   @coin_url "https://api.coingecko.com/api/v3/coins"
   @request_name MyHttpClient
 
-  @behaviour ChatFCoin.Helper.HttpClient
+  @behaviour ChatFCoin.Helper.HttpClientBehaviour
   # If there is another chatbot like telegram, I prefer to change this HTTP sender module as helper not for specific social network
   # Not it is like a hardcode sender and it is not my type in coding
   @impl true
