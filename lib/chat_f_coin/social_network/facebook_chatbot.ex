@@ -1,11 +1,10 @@
 defmodule ChatFCoin.SocialNetwork.Facebook do
-  @http_sender ChatFCoin.Helper.HttpSender
 
   @spec run_message(String.t(), String.t(), integer()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
   def run_message(user_id, user_first_name, number) when number in [0, 100, 500] do
     buttons = [{"Get Coins with Name", "CoinWithName"}, {"Get Coins with Id", "CoinWithId"}, {"Cancel Operation", "CancelOperation"}]
     message_body(:temporary_button, user_id, buttons, sender_msg(number, user_first_name))
-    |> @http_sender.http_send_message()
+    |> ChatFCoin.http_client().http_send_message()
     |> handle_message_status(user_id, number)
   end
 
@@ -16,7 +15,7 @@ defmodule ChatFCoin.SocialNetwork.Facebook do
   def run_message(user_id, first_name, 3) do
     ChatFCoin.UserMsgDynamicGenserver.delete(user_id: user_id)
     message_body(:shor, user_id, sender_msg(3, first_name))
-    |> @http_sender.http_send_message()
+    |> ChatFCoin.http_client().http_send_message()
   end
 
   def run_message(user_id, first_name, coin_id) do
@@ -37,16 +36,16 @@ defmodule ChatFCoin.SocialNetwork.Facebook do
   defp handle_message_status(result, _user_id, _message_number), do: result
 
   @spec message_body(:shor, String.t(), String.t()) :: %{message: %{text: any}, recipient: %{id: any}}
-  def message_body(:shor, user_id, message), do: %{recipient: %{id: user_id}, message: %{text: message}}
+  defp message_body(:shor, user_id, message), do: %{recipient: %{id: user_id}, message: %{text: message}}
 
   @spec message_body(:temporary_button, String.t(), [tuple()], String.t()) :: map()
-  def message_body(:temporary_button, user_id, buttons, message) do
+  defp message_body(:temporary_button, user_id, buttons, message) do
     buttons = Enum.map(buttons, fn {title, payload} -> %{content_type: "text", title: title, payload: "#{payload}"} end)
     %{recipient: %{id: user_id}, messaging_type: "RESPONSE", message: %{text:  "#{message}", quick_replies: buttons}}
   end
 
   defp get_coins(per_page, user_id, first_name, type) do
-    case @http_sender.http_get_coins(per_page) do
+    case ChatFCoin.http_client().http_get_coins(per_page) do
       {:ok, %Finch.Response{body: body, headers: _headers, status: _status}} ->
         buttons =
           body
@@ -55,7 +54,7 @@ defmodule ChatFCoin.SocialNetwork.Facebook do
 
         number = if(type == "id", do: 2, else: 1)
         message_body(:temporary_button, user_id, buttons ++ [{"Cancel Operation", "CancelOperation"}], sender_msg(number, first_name))
-        |> @http_sender.http_send_message()
+        |> ChatFCoin.http_client().http_send_message()
         |> handle_message_status(user_id, number)
 
       {:error, _error} ->
@@ -64,21 +63,21 @@ defmodule ChatFCoin.SocialNetwork.Facebook do
   end
 
   defp get_coin_history(user_id, coin_id, currency, days, first_name) do
-    case @http_sender.http_get_coin_history(coin_id, currency, days) do
+    case ChatFCoin.http_client().http_get_coin_history(coin_id, currency, days) do
       {:ok, %Finch.Response{body: body, headers: _headers, status: _status}} ->
         data = body |> Jason.decode!()
         msg =
           ["This is the 14 Days log \n"] ++ Enum.map(data["prices"], fn [time, price] -> "* Time: #{convert_unix_to_string(time)} -- Price: #{price} \n" end)
           |> Enum.join("\n ")
         message_body(:shor, user_id, msg)
-        |> @http_sender.http_send_message()
+        |> ChatFCoin.http_client().http_send_message()
 
       {:error, _error} ->
         run_message(user_id, first_name, 500)
     end
   end
 
-  def convert_unix_to_string(timestamp) do
+  defp convert_unix_to_string(timestamp) do
     time =
       timestamp
       |> DateTime.from_unix!(:millisecond)
@@ -99,7 +98,7 @@ defmodule ChatFCoin.SocialNetwork.Facebook do
   end
 
   def get_user(user_id) do
-    @http_sender.http_get_user(user_id)
+    ChatFCoin.http_client().http_get_user(user_id)
     |> handle_user_info()
   end
 

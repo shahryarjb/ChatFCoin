@@ -25,7 +25,7 @@ defmodule ChatFCoin.Helper.HttpSender do
   end
 
   @impl true
-  def http_get_coins(per_page) do
+  def http_get_coins(per_page \\ 5) do
     url = "#{@coin_url}?per_page=#{per_page}"
     Finch.build(:get, url)
     |> Finch.request(@request_name)
