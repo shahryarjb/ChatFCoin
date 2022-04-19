@@ -17,7 +17,7 @@ else
     username: System.get_env("DB_USERNAME") || "postgres",
     password: System.get_env("DB_PASSWORD") || "postgres",
     hostname: System.get_env("DB_HOSTNAME") || "localhost",
-    database: "chat_f_coin_test#{System.get_env("MIX_TEST_PARTITION")}",
+    database: "chat_f_coin_test",
     pool: Ecto.Adapters.SQL.Sandbox,
     pool_size: 10
 end
