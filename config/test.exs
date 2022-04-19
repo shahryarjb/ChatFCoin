@@ -5,13 +5,23 @@ import Config
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
-config :chat_f_coin, ChatFCoin.Repo,
-  username: System.get_env("DB_USERNAME") || "postgres",
-  password: System.get_env("DB_PASSWORD") || "postgres",
-  hostname: System.get_env("DB_HOSTNAME") || "localhost",
-  database: "chat_f_coin_test#{System.get_env("MIX_TEST_PARTITION")}",
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 10
+
+if System.get_env("GITHUB_ACTIONS") do
+  config :mishka_database, ChatFCoin.Repo,
+    url: System.get_env("DATABASE_URL") || "postgres://localhost:5432/chat_f_coin_test",
+    pool: Ecto.Adapters.SQL.Sandbox,
+    pool_size: 20,
+    show_sensitive_data_on_connection_error: true
+else
+  config :chat_f_coin, ChatFCoin.Repo,
+    username: System.get_env("DB_USERNAME") || "postgres",
+    password: System.get_env("DB_PASSWORD") || "postgres",
+    hostname: System.get_env("DB_HOSTNAME") || "localhost",
+    database: "chat_f_coin_test#{System.get_env("MIX_TEST_PARTITION")}",
+    pool: Ecto.Adapters.SQL.Sandbox,
+    pool_size: 10
+end
+
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
