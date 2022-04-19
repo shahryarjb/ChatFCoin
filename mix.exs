@@ -56,7 +56,8 @@ defmodule ChatFCoin.MixProject do
       {:jason, "~> 1.2"},
       {:plug_cowboy, "~> 2.5"},
       {:mishka_installer, git: "https://github.com/mishka-group/mishka_installer.git"},
-      {:finch, "~> 0.11.0"}
+      {:finch, "~> 0.11.0"},
+      {:mox, "~> 1.0", only: :test}
     ]
   end
 

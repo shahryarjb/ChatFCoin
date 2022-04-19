@@ -2,9 +2,10 @@ defmodule ChatFCoin.Helper.HttpSender do
   @facebook_url "https://graph.facebook.com/v2.6/me/messages"
   @request_name MyHttpClient
 
+  @behaviour ChatFCoin.Helper.HttpClient
   # If there is another chatbot like telegram, I prefer to change this HTTP sender module as helper not for specific social network
   # Not it is like a hardcode sender and it is not my type in coding
-  @spec send_message(any, binary | URI.t()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
+  @impl true
   def send_message(body, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)) do
     headers = [
       {"Content-type", "application/json"},
@@ -20,7 +21,7 @@ defmodule ChatFCoin.Helper.HttpSender do
   # -d 'access_token=<ACCESS_TOKEN>' \
   # https://graph.facebook.com/v13.0/{person-id}/
 
-  @spec get_user_info(integer(), String.t()) :: {:error, Exception.t} | {:ok, Finch.Response.t()}
+  @impl true
   def get_user_info(person_id, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)) do
     url = "https://graph.facebook.com/v13.0/#{person_id}?access_token=#{access_token}"
     Finch.build(:get, url)
@@ -28,12 +29,7 @@ defmodule ChatFCoin.Helper.HttpSender do
     |> handle_user_info
   end
 
-  defp handle_user_info({:ok, %{body: body, headers: _headers, status: 200}}), do: Jason.decode!(body)
-  # I should pass nil or error as atom, but the message can be sent with Dear client and make him/her smile With our respect
-  # It should be noted you can create some useful condition to make code safer like if you cannot access to API what should be done?
-  defp handle_user_info(_), do: %{"first_name" => "Dear client", "last_name" => "", "profile_pic" => "", "id" => ""}
-
-
+  @impl true
   def get_last_coins(per_page, user_id, first_name, type) do
     url = "https://api.coingecko.com/api/v3/coins?per_page=#{per_page}"
     Finch.build(:get, url)
@@ -41,6 +37,7 @@ defmodule ChatFCoin.Helper.HttpSender do
     |> handle_coins(user_id, first_name, type)
   end
 
+  @impl true
   def get_coin_history(user_id, coin_id, currency, days, first_name) do
     query =
       %{"id" => coin_id, "vs_currency" => currency, "days" => days, "interval" => "daily"}
@@ -143,4 +140,9 @@ defmodule ChatFCoin.Helper.HttpSender do
       500 => "Unfortunately, we can not access to Coin server!! Please try again or cancel operation and try later.",
     }[message]
   end
+
+  defp handle_user_info({:ok, %{body: body, headers: _headers, status: 200}}), do: Jason.decode!(body)
+  # I should pass nil or error as atom, but the message can be sent with Dear client and make him/her smile With our respect
+  # It should be noted you can create some useful condition to make code safer like if you cannot access to API what should be done?
+  defp handle_user_info(_), do: %{"first_name" => "Dear client", "last_name" => "", "profile_pic" => "", "id" => ""}
 end
