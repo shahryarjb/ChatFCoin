@@ -24,7 +24,7 @@ import Config
 # end
 
 config :chat_f_coin, ChatFCoin.Repo,
-  url: "ecto://postgres:postgres@localhost/chat_f_coin_test",
+  url: "ecto://postgres:postgres@localhost:5432/chat_f_coin_test",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10,
   show_sensitive_data_on_connection_error: true
