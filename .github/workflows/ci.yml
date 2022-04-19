@@ -12,6 +12,7 @@ jobs:
   ci:
     env:
       GITHUB_ACTION: true
+      MIX_ENV: test
 
     strategy:
       fail-fast: false
@@ -58,6 +59,7 @@ jobs:
           DB_USERNAME: postgres
           DB_PASSWORD: postgres
           DB_HOSTNAME: localhost
+          MIX_ENV: test
         run: | 
           mix deps.get
           mix deps.compile
