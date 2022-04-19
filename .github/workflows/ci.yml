@@ -28,7 +28,7 @@ jobs:
       postgres:
         image: postgres:${{matrix.pair.postgres}}
         env:
-          POSTGRES_DB: mishka_test
+          POSTGRES_DB: chat_f_coin_test
           POSTGRES_PASSWORD: postgres
           POSTGRES_USER: postgres
         options: >-
