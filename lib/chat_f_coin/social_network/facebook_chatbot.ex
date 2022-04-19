@@ -65,6 +65,14 @@ defmodule ChatFCoin.SocialNetwork.Facebook do
   defp get_coin_history(user_id, coin_id, currency, days, first_name) do
     case ChatFCoin.http_client().http_get_coin_history(coin_id, currency, days) do
       {:ok, %Finch.Response{body: body, headers: _headers, status: _status}} ->
+
+        Task.Supervisor.start_child(__MODULE__, fn ->
+          :timer.sleep(500)
+          # We can get previous request from the user state to know what type the user prefers for loading last 5 coins again,
+          # but for now it is not nessery
+          run_message(user_id, first_name, 1)
+        end)
+
         data = body |> Jason.decode!()
         msg =
           ["This is the 14 Days log \n"] ++ Enum.map(data["prices"], fn [time, price] -> "* Time: #{convert_unix_to_string(time)} -- Price: #{price} \n" end)
