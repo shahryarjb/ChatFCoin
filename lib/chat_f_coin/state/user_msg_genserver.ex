@@ -105,7 +105,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     new_state =
       state
       |> Map.merge(%{
-        user_info: ChatFCoin.Helper.HttpSender.http_get_user(state.user_id),
+        user_info: ChatFCoin.SocialNetwork.Facebook.get_user(state.user_id),
         last_try: NaiveDateTime.utc_now()
       })
 
@@ -115,7 +115,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   @impl true
   def handle_continue({:sending_message, :add}, %UserMsgDynamicGenserver{} = state) do
     # Because it is the first message user send to us, we do not need to compare, hence we should send an auto message to user
-    ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], 0)
+    ChatFCoin.SocialNetwork.Facebook.run_message(state.user_id, state.user_info["first_name"], 0)
     {:noreply, state}
   end
 
@@ -124,9 +124,9 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     # With this easy way, you can have all the user's messages and analytic them how many wrong messages exist.
     # It should be noted that this way can reduce your conditions
     if !is_nil(number = List.last(state.user_answers)) do
-      ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], number)
+      ChatFCoin.SocialNetwork.Facebook.run_message(state.user_id, state.user_info["first_name"], number)
     else
-      ChatFCoin.Helper.HttpSender.run_message(state.user_id, state.user_info["first_name"], 100)
+      ChatFCoin.SocialNetwork.Facebook.run_message(state.user_id, state.user_info["first_name"], 100)
     end
     {:noreply, state}
   end
