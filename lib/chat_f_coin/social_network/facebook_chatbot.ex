@@ -67,7 +67,7 @@ defmodule ChatFCoin.SocialNetwork.Facebook do
       {:ok, %Finch.Response{body: body, headers: _headers, status: _status}} ->
 
         Task.Supervisor.start_child(__MODULE__, fn ->
-          :timer.sleep(500)
+          :timer.sleep(3000)
           # We can get previous request from the user state to know what type the user prefers for loading last 5 coins again,
           # but for now it is not nessery
           run_message(user_id, first_name, 1)
