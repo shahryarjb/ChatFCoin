@@ -6,7 +6,8 @@ import Config
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
 
-if System.get_env("GITHUB_ACTIONS") do
+if System.get_env("GITHUB_ACTION") do
+  IO.inspect("This is a github acction link")
   config :chat_f_coin, ChatFCoin.Repo,
     url: System.get_env("DATABASE_URL") || "postgres://localhost:5432/chat_f_coin_test",
     pool: Ecto.Adapters.SQL.Sandbox,
