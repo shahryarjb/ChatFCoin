@@ -1,4 +1,4 @@
-defmodule ChatFCoinTest.Helper.UserMessageHttpSenderTest do
+defmodule ChatFCoinTest.Helper.FacebookUserRequestTest do
   use ExUnit.Case, async: true
   doctest ChatFCoin
 
