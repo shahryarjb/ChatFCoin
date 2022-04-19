@@ -32,7 +32,8 @@ defmodule ChatFCoin.Application do
       # {ChatFCoin.Worker, arg}
       {Finch, name: MyHttpClient},
       {Registry, keys: :unique, name: UserMSGRegistry},
-      {DynamicSupervisor, plugin_runner_config}
+      {DynamicSupervisor, plugin_runner_config},
+      %{id: ChatFCoin.RejectUserMsgGenserver, start: {ChatFCoin.RejectUserMsgGenserver, :start_link, [[]]}}
     ] ++ plugin
 
     # See https://hexdocs.pm/elixir/Supervisor.html

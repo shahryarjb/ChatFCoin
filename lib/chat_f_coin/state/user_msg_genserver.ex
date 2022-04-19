@@ -37,7 +37,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   end
 
   defp default(user_id, type, parent_pid) do
-    %UserMsgDynamicGenserver{user_id: user_id, parent_pid: parent_pid, social_network: type, last_try: NaiveDateTime.utc_now()}
+    %UserMsgDynamicGenserver{user_id: user_id, parent_pid: parent_pid, social_network: type, last_try: DateTime.utc_now()}
   end
 
   def push_call(%UserMsgDynamicGenserver{} = element) do
@@ -83,7 +83,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
   def handle_call({:push, status, %UserMsgDynamicGenserver{} = element}, _from, %UserMsgDynamicGenserver{} = state) do
     element =
       Map.merge(element, %{
-        last_try: NaiveDateTime.utc_now(),
+        last_try: DateTime.utc_now(),
         user_answers: state.user_answers ++ element.user_answers,
         user_info: state.user_info
       })
@@ -106,7 +106,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
       state
       |> Map.merge(%{
         user_info: ChatFCoin.SocialNetwork.Facebook.get_user(state.user_id),
-        last_try: NaiveDateTime.utc_now()
+        last_try: DateTime.utc_now()
       })
 
     {:noreply, new_state}
