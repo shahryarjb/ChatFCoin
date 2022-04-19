@@ -10,7 +10,7 @@ if System.get_env("GITHUB_ACTIONS") do
   config :chat_f_coin, ChatFCoin.Repo,
     url: System.get_env("DATABASE_URL") || "postgres://localhost:5432/chat_f_coin_test",
     pool: Ecto.Adapters.SQL.Sandbox,
-    pool_size: 20,
+    pool_size: 10,
     show_sensitive_data_on_connection_error: true
 else
   config :chat_f_coin, ChatFCoin.Repo,

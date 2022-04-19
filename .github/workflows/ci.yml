@@ -57,15 +57,12 @@ jobs:
           GITHUB_ACTIONS: github
           DATABASE_URL: postgresql://postgres:postgres@localhost:${{job.services.postgres.ports[5432]}}/chat_f_coin_test
           DATABASE_DEVELOPERT_URL: postgresql://postgres:postgres@localhost:${{job.services.postgres.ports[5432]}}/mishka_developer_tools_test
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_HOSTNAME: localhost
         run: | 
           mix deps.get
           mix deps.compile
           mix ecto.create
           mix ecto.migrate
-
-      - name: Run test with temporary information
-        env:
-          GITHUB_ACTIONS: github
-          DATABASE_DEVELOPERT_URL: postgresql://postgres:postgres@localhost:${{job.services.postgres.ports[5432]}}/chat_f_coin_test
-        run: |
           mix test --trace
