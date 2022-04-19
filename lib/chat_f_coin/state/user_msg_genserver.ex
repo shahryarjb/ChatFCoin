@@ -105,7 +105,7 @@ defmodule ChatFCoin.UserMsgDynamicGenserver do
     new_state =
       state
       |> Map.merge(%{
-        user_info: ChatFCoin.Helper.HttpSender.get_user_info(state.user_id),
+        user_info: ChatFCoin.Helper.HttpSender.http_get_user(state.user_id),
         last_try: NaiveDateTime.utc_now()
       })
 

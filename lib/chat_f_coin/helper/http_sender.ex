@@ -1,28 +1,24 @@
 defmodule ChatFCoin.Helper.HttpSender do
-  @facebook_url "https://graph.facebook.com/v2.6/me/messages"
+  @facebook_message_url "https://graph.facebook.com/v2.6/me/messages"
+  @coin_url "https://api.coingecko.com/api/v3/coins"
   @request_name MyHttpClient
 
   @behaviour ChatFCoin.Helper.HttpClient
   # If there is another chatbot like telegram, I prefer to change this HTTP sender module as helper not for specific social network
   # Not it is like a hardcode sender and it is not my type in coding
   @impl true
-  def send_message(body, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)) do
+  def http_send_message(body, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)) do
     headers = [
       {"Content-type", "application/json"},
       {"Accept", "application/json"}
     ]
-
-    Finch.build(:post, @facebook_url <> "?access_token=#{access_token}", headers, body |> Jason.encode!())
+    Finch.build(:post, @facebook_message_url <> "?access_token=#{access_token}", headers, body |> Jason.encode!())
     |> Finch.request(@request_name)
   end
 
   # Ref: https://developers.facebook.com/docs/graph-api/reference/v2.6/user
-  # curl -X GET -G \
-  # -d 'access_token=<ACCESS_TOKEN>' \
-  # https://graph.facebook.com/v13.0/{person-id}/
-
   @impl true
-  def get_user_info(person_id, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)) do
+  def http_get_user(person_id, access_token \\ ChatFCoin.get_config(:facebook_chat_accsess_token)) do
     url = "https://graph.facebook.com/v13.0/#{person_id}?access_token=#{access_token}"
     Finch.build(:get, url)
     |> Finch.request(@request_name)
@@ -30,19 +26,19 @@ defmodule ChatFCoin.Helper.HttpSender do
   end
 
   @impl true
-  def get_last_coins(per_page, user_id, first_name, type) do
-    url = "https://api.coingecko.com/api/v3/coins?per_page=#{per_page}"
+  def http_get_coins(per_page, user_id, first_name, type) do
+    url = "#{@coin_url}?per_page=#{per_page}"
     Finch.build(:get, url)
     |> Finch.request(@request_name)
     |> handle_coins(user_id, first_name, type)
   end
 
   @impl true
-  def get_coin_history(user_id, coin_id, currency, days, first_name) do
+  def http_get_coin_history(user_id, coin_id, currency, days, first_name) do
     query =
       %{"id" => coin_id, "vs_currency" => currency, "days" => days, "interval" => "daily"}
       |> URI.encode_query
-    url = "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?#{query}"
+    url = "#{@coin_url}/bitcoin/market_chart?#{query}"
     Finch.build(:get, url)
     |> Finch.request(@request_name)
     |> handle_coin_history(user_id, first_name)
@@ -52,30 +48,30 @@ defmodule ChatFCoin.Helper.HttpSender do
   def run_message(user_id, user_first_name, number) when number in [0, 100, 500] do
     buttons = [{"Get Coins with Name", "CoinWithName"}, {"Get Coins with Id", "CoinWithId"}, {"Cancel Operation", "CancelOperation"}]
     message_body(:temporary_button, user_id, buttons, sender_msg(number, user_first_name))
-    |> send_message()
+    |> http_send_message()
     |> handle_message_status(user_id, number)
   end
 
   def run_message(user_id, first_name, number) when number in [1, 2] do
-    get_last_coins(5, user_id, first_name, if(number == 2, do: "id", else: "name"))
+    http_get_coins(5, user_id, first_name, if(number == 2, do: "id", else: "name"))
   end
 
   def run_message(user_id, first_name, 3) do
     ChatFCoin.UserMsgDynamicGenserver.delete(user_id: user_id)
     message_body(:shor, user_id, sender_msg(3, first_name))
-    |> send_message()
+    |> http_send_message()
   end
 
   def run_message(user_id, first_name, coin_id) do
     # TODO: send him selector to load coin again
-    get_coin_history(user_id, coin_id, "usd", 14, first_name)
+    http_get_coin_history(user_id, coin_id, "usd", 14, first_name)
   end
 
   defp handle_message_status({:error, exception}, user_id, message_number) do
     # TO load a plugin call hook to let developer create a custom plugin for this section of http sender
     if Mix.env() in [:dev, :prod] do
       state = %ChatFCoin.Plugin.HttpSendMessage.HttpSendMessageBehaviour{message_number: message_number, sender_id: user_id, exception: exception}
-      {:error, MishkaInstaller.Hook.call(event: "on_http_send_message", state: state).exception}
+      {:error, MishkaInstaller.Hook.call(event: "on_http_http_send_message", state: state).exception}
     else
       {:error, exception}
     end
@@ -104,7 +100,7 @@ defmodule ChatFCoin.Helper.HttpSender do
 
     number = if(type == "id", do: 2, else: 1)
     message_body(:temporary_button, user_id, buttons ++ [{"Cancel Operation", "CancelOperation"}], sender_msg(number, user_first_name))
-    |> send_message()
+    |> http_send_message()
     |> handle_message_status(user_id, number)
   end
 
@@ -118,7 +114,7 @@ defmodule ChatFCoin.Helper.HttpSender do
       ["This is the 14 Days log \n"] ++ Enum.map(data["prices"], fn [time, price] -> "* Time: #{convert_unix_to_string(time)} -- Price: #{price} \n" end)
       |> Enum.join("\n ")
     message_body(:shor, user_id, msg)
-    |> send_message()
+    |> http_send_message()
   end
 
   def convert_unix_to_string(timestamp) do

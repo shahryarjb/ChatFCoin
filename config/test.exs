@@ -23,6 +23,8 @@ config :chat_f_coin, ChatFCoinWeb.Endpoint,
 # In test we don't send emails.
 config :chat_f_coin, ChatFCoin.Mailer, adapter: Swoosh.Adapters.Test
 
+config :chat_f_coin, :http_client, ChatFCoin.Helper.HttpSenderTestMock
+
 # Print only warnings and errors during test
 config :logger, level: :warn
 

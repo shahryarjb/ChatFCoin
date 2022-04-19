@@ -26,6 +26,8 @@ config :mishka_installer, :basic,
   pubsub: ChatFCoin.PubSub,
   html_router: ChatFCoinWeb.Router.Helpers
 
+
+config :chat_f_coin, :http_client, ChatFCoin.Helper.HttpSender
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails
