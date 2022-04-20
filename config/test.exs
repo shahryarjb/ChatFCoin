@@ -7,7 +7,7 @@ import Config
 # Run `mix help test` for more information.
 
 config :chat_f_coin, ChatFCoin.Repo,
-  url: System.get_env("DATABASE_URL") || "ecto://postgres:postgres@localhost:5432/chat_f_coin_test",
+  url: System.get_env("DATABASE_URL") || "ecto://postgres:postgres@localhost/chat_f_coin_test",
   pool: Ecto.Adapters.SQL.Sandbox,
   pool_size: 10,
   show_sensitive_data_on_connection_error: true

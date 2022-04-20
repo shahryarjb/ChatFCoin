@@ -60,14 +60,26 @@ defmodule ChatFCoinWeb.ChatBotController do
     |> ChatBotControllerProtocol.webhook()
   end
 
-  def webhook(conn, %{"object" => object, "entry" => entries} = _params) do
+  def webhook(conn, %{"object" => object, "entry" => entries} = _params) when is_list(entries) do
     # TODO: It can be changed with dynamic parameters in the future
     # TODO: `get_message` value should be sanitized even Facebook is a safe external service, change it in the future
-    get_message = List.first(entries)["messaging"] |> List.first
+    # TODO: This bottom line of code is not safe for API, and the user got a 500 error. But it comes from Facebook, and we can prevent another site.
+    # TODO: OR we can select another way to process, but for now it depends on your strategy
+    # TODO: it should be noted, we used Protocol and all the data should be put into Behaviour, after that we can process there not in Controller
+    ####################################################################
+    #get_message = List.first(entries)["messaging"] |> List.first
+    ####################################################################
     %FacebookUserMessageBehaviour{
-      message_id: List.first(entries)["id"], message: get_message["message"],
-      sender_id: get_message["sender"]["id"], object: object, conn: conn
+      message_id: List.first(entries)["id"], message: get_msg(entries)["message"],
+      sender_id: get_msg(entries)["sender"]["id"], object: object, conn: conn
     }
     |> ChatBotControllerProtocol.webhook()
+  end
+
+  defp get_msg(entries) do
+    List.first(entries)["messaging"]
+    |> List.first
+  rescue
+    _e -> %{}
   end
 end

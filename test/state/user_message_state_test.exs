@@ -13,6 +13,7 @@ defmodule ChatFCoinTest.State.UserMessageStateTest do
   end
 
   test "Push call a user message" do
+    UserMsgDynamicGenserver.delete(user_id: "TestUserId")
     push =
       %UserMsgDynamicGenserver{user_id: "TestUserId", user_answers: [nil], parent_pid: nil, social_network: "facebook"}
       |> UserMsgDynamicGenserver.push_call()
@@ -30,12 +31,5 @@ defmodule ChatFCoinTest.State.UserMessageStateTest do
           "profile_pic" => _profile_image
         }
       } = assert push
-
-      :timer.sleep(100)
-      assert length(UserMsgDynamicGenserver.get_all(network: "facebook")) == 1
-      :timer.sleep(100)
-      assert UserMsgDynamicGenserver.delete(user_id: "TestUserId") == :ok
-      :timer.sleep(100)
-      assert length(UserMsgDynamicGenserver.get_all(network: "facebook")) == 0
   end
 end

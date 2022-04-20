@@ -9,7 +9,7 @@ This is a training project to build chatbot for Facebook with elixir and phoenix
 ## Quick View
 
 
-https://user-images.githubusercontent.com/8413604/163977114-e0ce62e6-5ca7-4926-9218-cedcdc02487c.mp4
+https://user-images.githubusercontent.com/8413604/164182681-21d48b84-3c19-4758-8061-1bd34b194045.mp4
 
 
 
@@ -31,3 +31,9 @@ DB_NAME
 ```
 
 > how to config Facebook Messenger Bot: https://www.youtube.com/watch?v=5wPrfMxvrgo and the document: https://developers.facebook.com/docs/messenger-platform/getting-started
+
+
+#### Testing
+
+It should be noted that if you have custom settings for your database, please create this `DATABASE_URL` OS variable and put your config into it. For example, we configured it for two different conditions, the first one is for local testing that you do not need to set anything, and it loads it like this: `ecto://postgres:postgres@localhost/chat_f_coin_test`, and the other is for GitHub CI and we config it like this: `postgresql://postgres:postgres@localhost:${{job.services.postgres.ports[5432]}}/chat_f_coin_test` it depends on your situation.
+

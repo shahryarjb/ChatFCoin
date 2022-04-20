@@ -37,7 +37,8 @@ defimpl ChatFCoin.ChatBotControllerProtocol, for: ChatFCoin.Plugin.FacebookUserM
   import Plug.Conn
 
   @spec webhook(FacebookUserMessageBehaviour.t()) :: Plug.Conn.t()
-  def webhook(%FacebookUserMessageBehaviour{message_id: message_id, message: message, sender_id: sender_id, object: "page", conn: conn}) do
+  def webhook(%FacebookUserMessageBehaviour{message_id: message_id, message: message, sender_id: sender_id, object: "page", conn: conn})
+    when not is_nil(sender_id) and not is_nil(message_id) and not is_nil(message) do
     # TODO: send a new message to user and ask them or say something
     state =
       %FacebookUserMessageBehaviour{message_id: message_id, message: message, sender_id: sender_id, object: "page", conn: conn}

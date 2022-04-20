@@ -1,9 +1,9 @@
 defmodule ChatFCoin.RejectUserMsgGenserver do
   use GenServer
+  use Timex
   require Logger
 
-  use Timex
-
+  @spec start_link(list()) :: :ignore | {:error, any} | {:ok, pid}
   def start_link(args \\ []) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
@@ -18,7 +18,7 @@ defmodule ChatFCoin.RejectUserMsgGenserver do
   def handle_info(:timeout, state) do
     reject_expaierd_user_message()
     Logger.info("Rejection Task loop of UserMessage was reloaded")
-    {:noreply, state, 300000}#5min
+    {:noreply, state, 300000} #5min
   end
 
   defp reject_expaierd_user_message() do
