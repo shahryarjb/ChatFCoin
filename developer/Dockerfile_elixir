@@ -1,0 +1,27 @@
+# Extend from the official Elixir image
+FROM elixir:1.13.3-alpine
+
+RUN apk update && apk add postgresql-client && rm -rf /var/cache/apk/*
+
+WORKDIR /app
+
+# Copy all application files
+COPY . /app
+
+RUN apk add --no-cache --virtual .build-deps inotify-tools make python2 erlang-dev alpine-sdk && apk add git
+
+# Install and compile dependecies
+RUN  cd /app && \
+        mix local.hex --force && \
+        mix local.rebar --force && \
+        mix deps.get && \
+        mix do deps.compile, assets.deploy
+
+
+# Clean Up
+RUN apk del .build-deps && rm -rf deployment
+
+# Run entrypoint.sh script
+COPY ./developer/entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
+CMD ["/app/entrypoint.sh"]

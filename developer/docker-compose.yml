@@ -1,0 +1,69 @@
+version: "3.9"
+
+services:    
+  nginx:
+    build: 
+      context: .
+      dockerfile: Dockerfile_nginx
+    container_name: nginx
+    restart: always
+    ports:
+      - "8080:80"
+    networks:
+      mynetwork:
+    env_file:
+      - ./variables.env
+    volumes:
+      - elixir:/var/www/html/chatbot/
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - elixir
+
+
+  elixir:
+    build: 
+      context: ../
+      dockerfile: developer/Dockerfile_elixir
+    container_name: elixir
+    restart: always
+    hostname: elixir
+    networks:
+      mynetwork:
+    env_file:
+      - ./variables.env
+    volumes:
+      - elixir:/app/priv/static/
+      - /etc/localtime:/etc/localtime:ro
+    depends_on:
+      - postgres
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+      
+      
+  postgres:
+    image: postgres:14.2-alpine3.15
+    container_name: postgres
+    hostname: postgres
+    restart: always
+    networks:
+      mynetwork:
+    env_file:
+      - ./variables.env
+    volumes:
+      - database:/var/lib/postgresql/data
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+
+#============= network
+networks:
+  mynetwork:
+  
+#============= volume
+volumes:
+  elixir:
+  database:
