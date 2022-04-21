@@ -15,7 +15,7 @@ https://user-images.githubusercontent.com/8413604/164182681-21d48b84-3c19-4758-8
 
 ### Installation
 
-It is a normal Phoenix project, and you can deploy on your system, but I prepared a simple docker for you.
+It is a normal Phoenix project, and you can deploy it on your system, but I prepared a simple docker for you. If you want to install this project as a regular Phoenix project, I implemented a Makefile, but `export` these parameters as env.
 
 #### Do not forget to put it into your OS variables
 
